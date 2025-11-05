@@ -99,7 +99,7 @@ def menu():
     """Exibe o menu principal e gerencia as opções."""
     while True:
         print("\n==== MENU ====")
-        print("1 - Adicionar aluno")
+        print("1 - Adicionar alunos")
         print("2 - Adicionar nota")
         print("3 - Mostrar alunos")
         print("4 - Remover aluno")
