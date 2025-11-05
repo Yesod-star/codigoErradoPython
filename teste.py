@@ -141,3 +141,5 @@ def menu():
 
 
 menu()
+
+#agora nao vou fazer merda
