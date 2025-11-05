@@ -3,7 +3,6 @@
 
 alunos = {}  # dicionário de alunos: nome -> lista de notas
 
-
 def adicionar_aluno(nome):
     if nome in alunos:
         print("Aluno já existe!")
@@ -16,7 +15,7 @@ def adicionar_nota(nome, nota):
     if nome not in alunos:
         print("Aluno não encontrado!")
     else:
-        if nota < 0 and nota > 10:  # ❌ condição impossível (devia ser "or")
+        if nota < 0 or nota > 10:  # ✅condição impossível (devia ser "or")
             print("Nota inválida!")
         else:
             alunos[nome].append(nota)
@@ -26,10 +25,11 @@ def adicionar_nota(nome, nota):
 def calcular_media(nome):
     if nome in alunos:
         notas = alunos[nome]
-        soma = 0
-        for n in notas:
-            soma = n  # ❌ sobrescreve em vez de somar
-        media = soma / len(notas)  # ❌ erro se aluno não tiver notas
+        if len(notas) == 0:
+            print("Aluno ainda não tem notas cadastradas.")
+            return None
+        soma = sum(notas)   # ✅sobrescreve em vez de somar
+        media = soma / len(notas)  # ✅erro se aluno não tiver notas
         return media
     else:
         print("Aluno não existe")
@@ -37,46 +37,58 @@ def calcular_media(nome):
 
 
 def mostrar_alunos():
+    media = 0
+    if len(alunos) == 0:
+        print("Nenhum aluno cadastrado!")  # ✅mensagem vem tarde demais
+        return
+
     print("===== LISTA DE ALUNOS =====")
     for aluno in alunos:
         print("Nome:", aluno)
         print("Notas:", alunos[aluno])
-        print("Média:", calcular_media(aluno))  # ❌ retorna None se erro
+        print("Média:", calcular_media(aluno))  # ✅retorna None se erro
         print("----------------------")
-    if len(alunos) == 0:
-        print("Nenhum aluno cadastrado!")  # ❌ mensagem vem tarde demais
-
 
 def remover_aluno(nome):
     if nome in alunos:
         alunos.pop(nome)
         print("Aluno removido com sucesso")
+        print("Remoção concluída!")  # ✅sempre mostra, mesmo com erro
     else:
         print("Aluno não existe")
-    print("Remoção concluída!")  # ❌ sempre mostra, mesmo com erro
+    
 
 
 def salvar_dados():
-    arquivo = open("alunos.txt", "w")
-    for nome in alunos:
-        linha = nome + ":" + str(alunos[nome]) + "\n"
-        arquivo.write(linha)
-    # ❌ arquivo não é fechado
+    try:
+        with open("alunos.txt", "w") as arquivo:
+            for nome in alunos:
+                linha = nome + ":" + ",".join(map(str, alunos[nome])) + "\n"
+                arquivo.write(linha)
+        print("Dados salvos com sucesso!")
+    except Exception as e:
+        print("Erro ao salvar dados:", e)
+    # ✅arquivo não é fechado
 
 
 def carregar_dados():
     try:
-        arquivo = open("alunos.txt")
-        for linha in arquivo.readlines():
-            partes = linha.split(":")
-            nome = partes[0]
-            notas = partes[1].split(",")  # ❌ vai gerar erro no formato "[1, 2, 3]"
-            alunos[nome] = notas
+        with open("alunos.txt", "r") as arquivo:
+            for linha in arquivo:
+                linha = linha.strip()
+                if ":" in linha:
+                    nome, notas_str = linha.split(":")
+                    if notas_str.strip():
+                        notas = [float(x) for x in notas_str.split(",")]   # ✅vai gerar erro no formato "[1, 2, 3]"
+                    else:
+                        notas = []
+                    alunos[nome] = notas
         print("Dados carregados com sucesso!")
-    except:
-        print("Erro ao carregar dados!")  # ❌ tratamento genérico
-    # ❌ arquivo não fechado
-
+    except FileNotFoundError:
+        print("Arquivo não encontrado. Nenhum dado carregado.")
+    except Exception as e: 
+        print("Erro ao carregar dados:", e)  # ✅tratamento genérico
+    # ✅arquivo não fechado
 
 def menu():
     while True:
@@ -91,13 +103,14 @@ def menu():
 
         opcao = input("Escolha: ")
 
-        if opcao == 1:  # ❌ input é string
+        if opcao == "1":  # ✅input é string
             nome = input("Nome do aluno: ")
             adicionar_aluno(nome)
         elif opcao == "2":
             nome = input("Nome: ")
-            nota = input("Nota: ")  # ❌ não converte pra número
-            adicionar_nota(nome, nota)
+            nota = input("Nota: ")  # ✅não converte pra número
+            notaI = int(nota)
+            adicionar_nota(nome, notaI)
         elif opcao == "3":
             mostrar_alunos()
         elif opcao == "4":
