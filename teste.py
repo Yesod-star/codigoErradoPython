@@ -1,4 +1,4 @@
-# Programa de cadastro de alunos e cálculo de médias
+
 
 alunos = {}  # dicionário de alunos: nome -> lista de notas
 
