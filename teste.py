@@ -1,3 +1,5 @@
+import ast
+
 # Programa de cadastro de alunos e cálculo de médias
 # (Contém muitos erros de lógica, sintaxe e estrutura)
 
@@ -16,7 +18,7 @@ def adicionar_nota(nome, nota):
     if nome not in alunos:
         print("Aluno não encontrado!")
     else:
-        if nota < 0 and nota > 10:  # ❌ condição impossível (devia ser "or")
+        if nota < 0 or nota > 10:  # ✅ aparentemente esse era mais facil, possivelmene agora deu certo
             print("Nota inválida!")
         else:
             alunos[nome].append(nota)
@@ -28,8 +30,11 @@ def calcular_media(nome):
         notas = alunos[nome]
         soma = 0
         for n in notas:
-            soma = n  # ❌ sobrescreve em vez de somar
-        media = soma / len(notas)  # ❌ erro se aluno não tiver notas
+            soma += n  # ✅ sobrescreve em vez de somar
+        if not notas:
+            print("Aluno não tem notas")
+            return None
+        media = soma / len(notas)  # ✅ sé pa isso não ta funcionando 
         return media
     else:
         print("Aluno não existe")
@@ -37,23 +42,26 @@ def calcular_media(nome):
 
 
 def mostrar_alunos():
+    if len(alunos) == 0:
+        print("Nenhum aluno cadastrado!") # ✅ agora vai
+        return
+    
     print("===== LISTA DE ALUNOS =====")
     for aluno in alunos:
         print("Nome:", aluno)
         print("Notas:", alunos[aluno])
-        print("Média:", calcular_media(aluno))  # ❌ retorna None se erro
+        media = calcular_media(aluno)
+        print("Média:", "Sem notas cadastradas" if media is None else media)  # ✅ agora vai profavelmente dar certo chefia
         print("----------------------")
-    if len(alunos) == 0:
-        print("Nenhum aluno cadastrado!")  # ❌ mensagem vem tarde demais
 
 
 def remover_aluno(nome):
     if nome in alunos:
         alunos.pop(nome)
         print("Aluno removido com sucesso")
+        print("Remoção concluída!")  # ✅ agpra vai mostrar normlmente, melzinho na chupeta
     else:
         print("Aluno não existe")
-    print("Remoção concluída!")  # ❌ sempre mostra, mesmo com erro
 
 
 def salvar_dados():
@@ -61,7 +69,7 @@ def salvar_dados():
     for nome in alunos:
         linha = nome + ":" + str(alunos[nome]) + "\n"
         arquivo.write(linha)
-    # ❌ arquivo não é fechado
+    arquivo.close() # ✅ agora vai
 
 
 def carregar_dados():
@@ -70,13 +78,19 @@ def carregar_dados():
         for linha in arquivo.readlines():
             partes = linha.split(":")
             nome = partes[0]
-            notas = partes[1].split(",")  # ❌ vai gerar erro no formato "[1, 2, 3]"
+            raw = partes[1].strip()
+            try:
+                notas = ast.literal_eval(raw)
+                if not isinstance(notas, list):
+                    notas = []
+            except Exception:
+                notas = []
             alunos[nome] = notas
         print("Dados carregados com sucesso!")
     except:
-        print("Erro ao carregar dados!")  # ❌ tratamento genérico
-    # ❌ arquivo não fechado
-
+        print("Erro ao carregar dados! Verifique se o arquivo existe e está no formato correto.")  # ✅ tratamento nada generico
+    finally: # ✅ agora vai
+        arquivo.close()
 
 def menu():
     while True:
@@ -89,25 +103,25 @@ def menu():
         print("6 - Carregar dados")
         print("7 - Sair")
 
-        opcao = input("Escolha: ")
+        opcao = int(input("Escolha: "))
 
-        if opcao == 1:  # ❌ input é string
+        if opcao == 1:  # ✅ Resolvido, era so ter colocado int antes do input
             nome = input("Nome do aluno: ")
             adicionar_aluno(nome)
-        elif opcao == "2":
+        elif opcao == 2:
             nome = input("Nome: ")
-            nota = input("Nota: ")  # ❌ não converte pra número
+            nota = int(input("Nota: "))  # ✅ pronto papai, agora ele pega numeros
             adicionar_nota(nome, nota)
-        elif opcao == "3":
+        elif opcao == 3:
             mostrar_alunos()
-        elif opcao == "4":
+        elif opcao == 4:
             nome = input("Nome: ")
             remover_aluno(nome)
-        elif opcao == "5":
+        elif opcao == 5:
             salvar_dados()
-        elif opcao == "6":
+        elif opcao == 6:
             carregar_dados()
-        elif opcao == "7":
+        elif opcao == 7:
             print("Saindo...")
             break
         else:
@@ -115,3 +129,4 @@ def menu():
 
 
 menu()
+ 
