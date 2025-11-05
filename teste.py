@@ -16,7 +16,7 @@ def adicionar_nota(nome, nota):
     if nome not in alunos:
         print("Aluno não encontrado!")
     else:
-        if nota < 0 and nota > 10:  # ❌ condição impossível (devia ser "or")
+        if nota < 0 or nota > 10:  # ❌ condição impossível (devia ser "or")
             print("Nota inválida!")
         else:
             alunos[nome].append(nota)
@@ -27,9 +27,12 @@ def calcular_media(nome):
     if nome in alunos:
         notas = alunos[nome]
         soma = 0
-        for n in notas:
-            soma = n  # ❌ sobrescreve em vez de somar
-        media = soma / len(notas)  # ❌ erro se aluno não tiver notas
+        if(len(notas)>0):
+            for n in notas:
+                soma += n  # ❌ sobrescreve em vez de somar
+            media = soma / len(notas)  # ❌ erro se aluno não tiver notas
+        else:
+            media = 0
         return media
     else:
         print("Aluno não existe")
