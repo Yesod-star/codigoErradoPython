@@ -70,7 +70,7 @@ def carregar_dados():
         for linha in arquivo.readlines():
             partes = linha.split(":")
             nome = partes[0]
-            notas = partes[1].split(",")  # ❌ vai gerar erro no formato "[1, 2, 3]"
+            notas = partes[0].split(",")  # ❌ vai gerar erro no formato "[1, 2, 3]"
             alunos[nome] = notas
         print("Dados carregados com sucesso!")
     except:
