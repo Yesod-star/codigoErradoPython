@@ -16,7 +16,7 @@ def adicionar_nota(nome, nota):
     if nome not in alunos:
         print("Aluno não encontrado!")
     else:
-        if nota < 0 and nota > 10:  # ❌ condição impossível (devia ser "or")
+        if nota < 0 or nota > 10: 
             print("Nota inválida!")
         else:
             alunos[nome].append(nota)
@@ -28,7 +28,7 @@ def calcular_media(nome):
         notas = alunos[nome]
         soma = 0
         for n in notas:
-            soma = n  # ❌ sobrescreve em vez de somar
+            soma += n  
         media = soma / len(notas)  # ❌ erro se aluno não tiver notas
         return media
     else:
@@ -37,23 +37,29 @@ def calcular_media(nome):
 
 
 def mostrar_alunos():
-    print("===== LISTA DE ALUNOS =====")
-    for aluno in alunos:
-        print("Nome:", aluno)
-        print("Notas:", alunos[aluno])
-        print("Média:", calcular_media(aluno))  # ❌ retorna None se erro
-        print("----------------------")
     if len(alunos) == 0:
-        print("Nenhum aluno cadastrado!")  # ❌ mensagem vem tarde demais
+        print("Nenhum aluno cadastrado!")  
+    else:
+        print("===== LISTA DE ALUNOS =====")
+        for aluno in alunos:
+            print("Nome:", aluno)
+            print("Notas:", alunos[aluno])
+            if calcular_media(aluno) == 'None':
+                print("Média: Indisponível, aluno sem notas no sistema")
+            else: 
+                print("Média: ", calcular_media(aluno))
+            print("----------------------")
+    
 
 
 def remover_aluno(nome):
     if nome in alunos:
         alunos.pop(nome)
         print("Aluno removido com sucesso")
+        print("Remoção concluída!")
     else:
         print("Aluno não existe")
-    print("Remoção concluída!")  # ❌ sempre mostra, mesmo com erro
+    
 
 
 def salvar_dados():
@@ -61,7 +67,7 @@ def salvar_dados():
     for nome in alunos:
         linha = nome + ":" + str(alunos[nome]) + "\n"
         arquivo.write(linha)
-    # ❌ arquivo não é fechado
+        arquivo.close()
 
 
 def carregar_dados():
@@ -70,12 +76,12 @@ def carregar_dados():
         for linha in arquivo.readlines():
             partes = linha.split(":")
             nome = partes[0]
-            notas = partes[1].split(",")  # ❌ vai gerar erro no formato "[1, 2, 3]"
+            notas = partes[1].removeprefix("[").removesuffix("]").split(",")  
             alunos[nome] = notas
         print("Dados carregados com sucesso!")
     except:
-        print("Erro ao carregar dados!")  # ❌ tratamento genérico
-    # ❌ arquivo não fechado
+        print("Erro ao carregar dados!")  
+    arquivo.close()
 
 
 def menu():
@@ -91,12 +97,12 @@ def menu():
 
         opcao = input("Escolha: ")
 
-        if opcao == 1:  # ❌ input é string
+        if opcao == "1": 
             nome = input("Nome do aluno: ")
             adicionar_aluno(nome)
         elif opcao == "2":
             nome = input("Nome: ")
-            nota = input("Nota: ")  # ❌ não converte pra número
+            nota = input(float("Nota: "))  
             adicionar_nota(nome, nota)
         elif opcao == "3":
             mostrar_alunos()
