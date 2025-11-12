@@ -1,6 +1,7 @@
 # Programa de cadastro de alunos e cálculo de médias
 # (Contém muitos erros de lógica, sintaxe e estrutura)
 
+
 alunos = {}  # dicionário de alunos: nome -> lista de notas
 
 
