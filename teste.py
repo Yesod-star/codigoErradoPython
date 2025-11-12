@@ -16,7 +16,7 @@ def adicionar_nota(nome, nota):
     if nome not in alunos:
         print("Aluno não encontrado!")
     else:
-        if nota < 0 or nota > 10:  # ❌ condição impossível (devia ser "or")
+        if nota < 0 or nota > 10:
             print("Nota inválida!")
         else:
             alunos[nome].append(nota)
@@ -26,13 +26,12 @@ def adicionar_nota(nome, nota):
 def calcular_media(nome):
     if nome in alunos:
         notas = alunos[nome]
+        if not notas:
+            return 0
         soma = 0
-        if(len(notas)>0):
-            for n in notas:
-                soma += n  # ❌ sobrescreve em vez de somar
-            media = soma / len(notas)  # ❌ erro se aluno não tiver notas
-        else:
-            media = 0
+        for n in notas:
+            soma += n
+        media = soma / len(notas)
         return media
     else:
         print("Aluno não existe")
@@ -40,45 +39,48 @@ def calcular_media(nome):
 
 
 def mostrar_alunos():
+    if len(alunos) == 0:
+        print("Nenhum aluno cadastrado!")
+        return
     print("===== LISTA DE ALUNOS =====")
     for aluno in alunos:
         print("Nome:", aluno)
         print("Notas:", alunos[aluno])
-        print("Média:", calcular_media(aluno))  # ❌ retorna None se erro
+        print("Média:", calcular_media(aluno))
         print("----------------------")
-    if len(alunos) == 0:
-        print("Nenhum aluno cadastrado!")  # ❌ mensagem vem tarde demais
 
 
 def remover_aluno(nome):
     if nome in alunos:
         alunos.pop(nome)
         print("Aluno removido com sucesso")
+        print("Remoção concluída!")
     else:
         print("Aluno não existe")
-    print("Remoção concluída!")  # ❌ sempre mostra, mesmo com erro
 
 
 def salvar_dados():
-    arquivo = open("alunos.txt", "w")
-    for nome in alunos:
-        linha = nome + ":" + str(alunos[nome]) + "\n"
-        arquivo.write(linha)
-    # ❌ arquivo não é fechado
+    with open("alunos.txt", "w") as arquivo:
+        for nome in alunos:
+            linha = nome + ":" + ",".join(map(str, alunos[nome])) + "\n"
+            arquivo.write(linha)
 
 
 def carregar_dados():
     try:
-        arquivo = open("alunos.txt")
-        for linha in arquivo.readlines():
-            partes = linha.split(":")
-            nome = partes[0]
-            notas = partes[1].split(",")  # ❌ vai gerar erro no formato "[1, 2, 3]"
-            alunos[nome] = notas
+        with open("alunos.txt") as arquivo:
+            for linha in arquivo:
+                partes = linha.strip().split(":")
+                nome = partes[0]
+                notas_str = partes[1] if len(partes) > 1 else ""
+                if notas_str:
+                    notas = [float(n) for n in notas_str.split(",")]
+                else:
+                    notas = []
+                alunos[nome] = notas
         print("Dados carregados com sucesso!")
     except:
-        print("Erro ao carregar dados!")  # ❌ tratamento genérico
-    # ❌ arquivo não fechado
+        print("Erro ao carregar dados!")
 
 
 def menu():
@@ -94,12 +96,12 @@ def menu():
 
         opcao = input("Escolha: ")
 
-        if opcao == 1:  # ❌ input é string
+        if opcao == "1":
             nome = input("Nome do aluno: ")
             adicionar_aluno(nome)
         elif opcao == "2":
             nome = input("Nome: ")
-            nota = input("Nota: ")  # ❌ não converte pra número
+            nota = float(input("Nota: "))
             adicionar_nota(nome, nota)
         elif opcao == "3":
             mostrar_alunos()
@@ -115,6 +117,5 @@ def menu():
             break
         else:
             print("Opção inválida!")
-
 
 menu()
