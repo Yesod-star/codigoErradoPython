@@ -1,8 +1,4 @@
-# Programa de cadastro de alunos e cálculo de médias
-# (Contém muitos erros de lógica, sintaxe e estrutura)
-
-alunos = {}  # dicionário de alunos: nome -> lista de notas
-
+alunos = {}  
 
 def adicionar_aluno(nome):
     if nome in alunos:
@@ -16,7 +12,7 @@ def adicionar_nota(nome, nota):
     if nome not in alunos:
         print("Aluno não encontrado!")
     else:
-        if nota < 0 and nota > 10:  # ❌ condição impossível (devia ser "or")
+        if nota < 0 or nota > 10:  
             print("Nota inválida!")
         else:
             alunos[nome].append(nota)
@@ -28,8 +24,9 @@ def calcular_media(nome):
         notas = alunos[nome]
         soma = 0
         for n in notas:
-            soma = n  # ❌ sobrescreve em vez de somar
-        media = soma / len(notas)  # ❌ erro se aluno não tiver notas
+            soma += n  
+            if len(notas) > 0:
+                media = soma / len(notas)  
         return media
     else:
         print("Aluno não existe")
@@ -38,30 +35,34 @@ def calcular_media(nome):
 
 def mostrar_alunos():
     print("===== LISTA DE ALUNOS =====")
+    if len(alunos) == 0:
+        print("Nenhum aluno cadastrado!") 
+        return
+    
     for aluno in alunos:
         print("Nome:", aluno)
         print("Notas:", alunos[aluno])
-        print("Média:", calcular_media(aluno))  # ❌ retorna None se erro
+        print("Média:", calcular_media(aluno))  
         print("----------------------")
-    if len(alunos) == 0:
-        print("Nenhum aluno cadastrado!")  # ❌ mensagem vem tarde demais
+     
 
 
 def remover_aluno(nome):
     if nome in alunos:
         alunos.pop(nome)
         print("Aluno removido com sucesso")
+        print("Remoção concluída!")
     else:
         print("Aluno não existe")
-    print("Remoção concluída!")  # ❌ sempre mostra, mesmo com erro
-
+     
 
 def salvar_dados():
     arquivo = open("alunos.txt", "w")
     for nome in alunos:
         linha = nome + ":" + str(alunos[nome]) + "\n"
         arquivo.write(linha)
-    # ❌ arquivo não é fechado
+        arquivo.close()
+   
 
 
 def carregar_dados():
@@ -70,12 +71,14 @@ def carregar_dados():
         for linha in arquivo.readlines():
             partes = linha.split(":")
             nome = partes[0]
-            notas = partes[1].split(",")  # ❌ vai gerar erro no formato "[1, 2, 3]"
+            notas_str = partes[1].strip() 
+            notas = json.loads(notas_str)
             alunos[nome] = notas
         print("Dados carregados com sucesso!")
-    except:
-        print("Erro ao carregar dados!")  # ❌ tratamento genérico
-    # ❌ arquivo não fechado
+    except FileNotFoundError:
+        print("Arquivo 'alunos.txt' não encontrado. Iniciando com lista vazia.")
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado durante o carregamento: {e}")
 
 
 def menu():
@@ -91,13 +94,17 @@ def menu():
 
         opcao = input("Escolha: ")
 
-        if opcao == 1:  # ❌ input é string
+        if opcao == "1":  
             nome = input("Nome do aluno: ")
             adicionar_aluno(nome)
         elif opcao == "2":
             nome = input("Nome: ")
-            nota = input("Nota: ")  # ❌ não converte pra número
-            adicionar_nota(nome, nota)
+            nota_input = input("Nota: ")  
+            try:
+                nota = float(nota_input)
+                adicionar_nota(nome, nota)
+            except ValueError:
+                print("Erro: A nota deve ser um número válido.")
         elif opcao == "3":
             mostrar_alunos()
         elif opcao == "4":
